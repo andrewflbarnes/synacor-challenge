@@ -18,8 +18,6 @@ impl MemBank {
         self.memory.splice(memloc..data.len(), data);
     }
 
-    pub fn run(&self) {}
-
     pub fn next(&mut self) -> u16 {
         let val = self.read_at(self.pointer);
         self.pointer += 1;

@@ -29,16 +29,39 @@ impl VirtualMachine {
         }
     }
 
-    pub fn exec_opcode(&mut self, opcode: OpCode) {
+    fn exec_opcode(&mut self, opcode: OpCode) {
         match opcode {
-            OpCode::OUT => Self::console_write(self.memory.next()),
+            OpCode::OUT => {
+                let ch = self.next_literal_or_register();
+                Self::console_write(ch);
+            }
             OpCode::JMP => {
-                let raw = self.memory.next();
-                let addr = raw >> 8 | (raw << 8);
+                let addr = self.next_literal_or_register();
                 self.memory.set_pointer(addr);
-            },
-            OpCode::NOOP => {},
+            }
+            OpCode::JT => {
+                let check = self.next_literal_or_register();
+                let addr = self.next_literal_or_register();
+                if check != 0 {
+                    self.memory.set_pointer(addr);
+                }
+            }
+            OpCode::NOOP => {}
             _ => panic!("Unimplemented opcode: {:?}", opcode),
+        }
+    }
+
+    fn next_literal_or_register(&mut self) -> u16 {
+        let raw = self.memory.next();
+        self.literal_or_register(raw)
+    }
+
+    fn literal_or_register(&self, addr_or_literal: u16) -> u16 {
+        if 0x0080 & addr_or_literal == 0x0080 {
+            let reg = (0x0700 & addr_or_literal) >> 8;
+            return self.registers.get(reg);
+        } else {
+            return addr_or_literal >> 8 | (addr_or_literal << 8);
         }
     }
 

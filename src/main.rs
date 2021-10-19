@@ -2,8 +2,8 @@ mod vm;
 use vm::VirtualMachine;
 
 use std::env;
-use std::io::Read;
 use std::fs::File;
+use std::io::Read;
 
 fn main() {
     let mut vm = VirtualMachine::new();
@@ -18,25 +18,18 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
 
-    let mut f = File::open(filename)
-        .expect(&format!("Unable to open file for reading {}", filename));
-
-    let meta = f.metadata()
-        .expect(&format!("Unable to read file metadata: {}", filename));
+    let mut f =
+        File::open(filename).expect(&format!("Unable to open file for reading {}", filename));
 
     let mut buffer = vec![];
 
-    println!("Init: {}", buffer.len());
-    
-    f.read_to_end(&mut buffer)
-        .expect("Buffer overflow");
+    f.read_to_end(&mut buffer).expect("Buffer overflow");
 
-    let program: Vec<u16> = buffer.chunks_exact(2)
+    let program: Vec<u16> = buffer
+        .chunks_exact(2)
         .into_iter()
         .map(|a| (a[0] as u16) << 8 | a[1] as u16)
         .collect();
-
-    println!("Raw: {}, combined: {}", buffer.len(), program.len());
 
     vm.load(program);
 
