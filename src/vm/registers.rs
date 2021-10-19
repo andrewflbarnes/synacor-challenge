@@ -1,5 +1,3 @@
-use std::mem;
-
 pub struct Registers {
     registers: Vec<u16>,
 }
@@ -28,7 +26,7 @@ impl Registers {
     pub fn set(&mut self, reg: u16, val: u16) {
         check(reg);
         let index = as_index(reg);
-        mem::replace(&mut self.registers[index], val);
+        self.registers[index] = val;
     }
 
     pub fn get(&self, reg: u16) -> u16 {

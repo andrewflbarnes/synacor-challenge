@@ -1,4 +1,4 @@
-use super::{memory::MemBank, opcode::OpCode, registers::Registers, utils};
+use super::{maths, memory::MemBank, opcode::OpCode, registers::Registers, utils};
 
 pub struct VirtualMachine {
     memory: MemBank,
@@ -20,7 +20,6 @@ impl VirtualMachine {
     pub fn run(&mut self) {
         loop {
             let code = self.memory.next();
-            // println!("\n0x{:x} => 0x{:x}", self.memory.get_pointer() - 1, code);
             let op = OpCode::of(code);
             if op == OpCode::HALT {
                 return;
@@ -58,6 +57,13 @@ impl VirtualMachine {
                 if check == 0 {
                     self.memory.set_pointer(addr);
                 }
+            }
+            OpCode::ADD => {
+                let dest = self.memory.next();
+                let operand1 = self.next_literal_or_register();
+                let operand2 = self.next_literal_or_register();
+
+                self.registers.set(dest, maths::add(operand1, operand2))
             }
             OpCode::NOOP => {}
             _ => panic!("Unimplemented opcode: {:?}", opcode),
