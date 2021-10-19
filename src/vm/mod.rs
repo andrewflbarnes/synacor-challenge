@@ -9,3 +9,5 @@ pub use self::registers::Registers;
 
 mod machine;
 pub use self::machine::VirtualMachine;
+
+mod utils;

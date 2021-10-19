@@ -1,3 +1,5 @@
+use super::utils;
+
 pub struct MemBank {
     memory: Vec<u16>,
     pointer: u16,
@@ -19,19 +21,27 @@ impl MemBank {
     }
 
     pub fn next(&mut self) -> u16 {
-        let val = self.read_at(self.pointer);
+        let val = self.read_at_index(self.pointer);
         self.pointer += 1;
         val
     }
 
-    pub fn read_at(&self, location: u16) -> u16 {
-        if let Some(val) = self.memory.get(location as usize) {
+    pub fn read_at_addr(&self, location: u16) -> u16 {
+        self.read_at_index(utils::little_to_big(location))
+    }
+
+    fn read_at_index(&self, index: u16) -> u16 {
+        if let Some(val) = self.memory.get(index as usize) {
             return *val;
         }
-        panic!("End of memory when reading at {}", location)
+        panic!("End of memory when reading at {}", index)
     }
 
     pub fn set_pointer(&mut self, position: u16) {
-        self.pointer = position
+        self.pointer = utils::little_to_big(position)
+    }
+
+    pub fn get_pointer(&self) -> u16 {
+        self.pointer
     }
 }

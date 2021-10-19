@@ -25,7 +25,7 @@ pub enum OpCode {
 }
 
 impl OpCode {
-    pub fn of(val: &u16) -> Self {
+    pub fn of(val: u16) -> Self {
         // Little endian
         match val {
             0x0000 => OpCode::HALT,
@@ -50,7 +50,7 @@ impl OpCode {
             0x1300 => OpCode::OUT,
             0x1400 => OpCode::IN,
             0x1500 => OpCode::NOOP,
-            _ => panic!("Invalid opcode {}", val),
+            _ => panic!("Invalid opcode 0x{:x}", val),
         }
     }
 }
