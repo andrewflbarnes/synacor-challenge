@@ -20,7 +20,7 @@ pub enum OpCode {
     RET,
     OUT,
     IN,
-    NOOP
+    NOOP,
 }
 
 impl OpCode {
@@ -49,7 +49,7 @@ impl OpCode {
             0xC1 => OpCode::OUT,
             0x21 => OpCode::IN,
             0xA1 => OpCode::NOOP,
-            _ => panic!("Invalid opcode {}", val)
+            _ => panic!("Invalid opcode {}", val),
         }
     }
 }

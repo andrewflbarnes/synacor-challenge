@@ -1,7 +1,4 @@
-use super:: {
-    memory::MemBank,
-    registers::Registers,
-};
+use super::{memory::MemBank, registers::Registers};
 
 pub struct VirtualMachine {
     memory: MemBank,
@@ -17,10 +14,8 @@ impl VirtualMachine {
     }
 
     pub fn load(&self, program: Vec<u16>) {
-        self.memory.loadAt(0, program)
+        self.memory.load_at(0, program)
     }
 
-    pub fn run(&self) {
-        
-    }
+    pub fn run(&self) {}
 }

@@ -6,7 +6,7 @@ impl MemBank {
     pub fn new() -> Self {
         MemBank {
             // 15 bit address space
-            memory: vec![0; 0x8F]
+            memory: vec![0; 0x8F],
         }
     }
 
@@ -14,7 +14,5 @@ impl MemBank {
         // TODO
     }
 
-    pub fn run(&self) {
-
-    }
+    pub fn run(&self) {}
 }
