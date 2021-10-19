@@ -11,4 +11,5 @@ mod machine;
 pub use self::machine::VirtualMachine;
 
 mod maths;
+mod stack;
 mod utils;

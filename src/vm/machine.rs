@@ -1,8 +1,9 @@
-use super::{maths, memory::MemBank, opcode::OpCode, registers::Registers, utils};
+use super::{maths, memory::MemBank, opcode::OpCode, registers::Registers, stack::Stack, utils};
 
 pub struct VirtualMachine {
     memory: MemBank,
     registers: Registers,
+    stack: Stack,
 }
 
 impl VirtualMachine {
@@ -10,6 +11,7 @@ impl VirtualMachine {
         VirtualMachine {
             memory: MemBank::new(),
             registers: Registers::new(),
+            stack: Stack::new(),
         }
     }
 
@@ -36,12 +38,23 @@ impl VirtualMachine {
                 let val = self.next_literal_or_register();
                 self.registers.set(reg, val);
             }
+            OpCode::PUSH => {
+                let addr  = self.memory.next();
+                let val = self.literal_or_register(addr);
+                self.stack.push(val);
+            }
+            OpCode::POP => {
+                let reg = self.memory.next();
+                let val = self.stack.pop();
+                self.registers.set(reg, val);
+
+            }
             OpCode::EQ => {
                 let dest = self.memory.next();
                 let operand1 = self.next_literal_or_register();
                 let operand2 = self.next_literal_or_register();
 
-                self.registers.set(dest, if operand1 == operand2 { 1 } else { 0 })
+                self.registers.set(dest, if operand1 == operand2 { 0x0100 } else { 0x0000 });
             }
             OpCode::JMP => {
                 let addr = self.next_literal_or_register();
