@@ -36,9 +36,12 @@ impl VirtualMachine {
                 let val = self.next_literal_or_register();
                 self.registers.set(reg, val);
             }
-            OpCode::OUT => {
-                let ch = self.next_literal_or_register();
-                Self::console_write(ch);
+            OpCode::EQ => {
+                let dest = self.memory.next();
+                let operand1 = self.next_literal_or_register();
+                let operand2 = self.next_literal_or_register();
+
+                self.registers.set(dest, if operand1 == operand2 { 1 } else { 0 })
             }
             OpCode::JMP => {
                 let addr = self.next_literal_or_register();
@@ -64,6 +67,10 @@ impl VirtualMachine {
                 let operand2 = self.next_literal_or_register();
 
                 self.registers.set(dest, maths::add(operand1, operand2))
+            }
+            OpCode::OUT => {
+                let ch = self.next_literal_or_register();
+                Self::console_write(ch);
             }
             OpCode::NOOP => {}
             _ => panic!("Unimplemented opcode: {:?}", opcode),
