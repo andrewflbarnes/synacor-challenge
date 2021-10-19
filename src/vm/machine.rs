@@ -32,7 +32,12 @@ impl VirtualMachine {
     pub fn exec_opcode(&mut self, opcode: OpCode) {
         match opcode {
             OpCode::OUT => Self::console_write(self.memory.next()),
-            OpCode::NOOP => {}
+            OpCode::JMP => {
+                let raw = self.memory.next();
+                let addr = raw >> 8 | (raw << 8);
+                self.memory.set_pointer(addr);
+            },
+            OpCode::NOOP => {},
             _ => panic!("Unimplemented opcode: {:?}", opcode),
         }
     }

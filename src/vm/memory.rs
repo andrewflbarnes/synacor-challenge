@@ -32,4 +32,8 @@ impl MemBank {
         }
         panic!("End of memory when reading at {}", location)
     }
+
+    pub fn set_pointer(&mut self, position: u16) {
+        self.pointer = position
+    }
 }
