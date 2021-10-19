@@ -38,6 +38,6 @@ impl MemBank {
     }
 
     pub fn get_pointer(&self) -> u16 {
-        self.pointer
+        utils::little_to_big(self.pointer)
     }
 }
