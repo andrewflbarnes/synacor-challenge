@@ -56,6 +56,13 @@ impl VirtualMachine {
 
                 self.registers.set(dest, if operand1 == operand2 { 0x0100 } else { 0x0000 });
             }
+            OpCode::GT => {
+                let dest = self.memory.next();
+                let operand1 = self.next_literal_or_register();
+                let operand2 = self.next_literal_or_register();
+
+                self.registers.set(dest, if operand1 > operand2 { 0x0100 } else { 0x0000 });
+            }
             OpCode::JMP => {
                 let addr = self.next_literal_or_register();
                 self.memory.set_pointer(addr);
@@ -80,6 +87,26 @@ impl VirtualMachine {
                 let operand2 = self.next_literal_or_register();
 
                 self.registers.set(dest, maths::add(operand1, operand2))
+            }
+            OpCode::AND => {
+                let dest = self.memory.next();
+                let operand1 = self.next_literal_or_register();
+                let operand2 = self.next_literal_or_register();
+
+                self.registers.set(dest, operand1 & operand2)
+            }
+            OpCode::OR => {
+                let dest = self.memory.next();
+                let operand1 = self.next_literal_or_register();
+                let operand2 = self.next_literal_or_register();
+
+                self.registers.set(dest, operand1 | operand2)
+            }
+            OpCode::NOT => {
+                let dest = self.memory.next();
+                let operand = self.next_literal_or_register();
+
+                self.registers.set(dest, operand ^ 0xFF7F)
             }
             OpCode::OUT => {
                 let ch = self.next_literal_or_register();
