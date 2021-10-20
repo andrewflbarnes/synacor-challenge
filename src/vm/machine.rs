@@ -1,4 +1,6 @@
 use super::{maths, memory::MemBank, opcode::OpCode, registers::Registers, stack::Stack, utils};
+use std::io;
+use std::io::Read;
 
 pub struct VirtualMachine {
     memory: MemBank,
@@ -150,14 +152,20 @@ impl VirtualMachine {
                 } else {
                     return OpCode::HALT
                 }
-
             }
             OpCode::OUT => {
                 let ch = self.next_literal_or_register();
                 Self::console_write(ch);
             }
+            OpCode::IN => {
+                let dest = self.memory.next();
+
+                let mut buf = vec![0; 1];
+                io::stdin().read_exact(&mut buf).expect("Expected input");
+
+                self.registers.set(dest, (buf[0] as u16) << 8)
+            }
             OpCode::NOOP => {}
-            _ => panic!("Unimplemented opcode: {:?}", opcode),
         }
 
         return opcode;
