@@ -26,6 +26,10 @@ impl MemBank {
         val
     }
 
+    pub fn read_at_addr(&self, addr: u16) -> u16 {
+        self.read_at_index(utils::little_to_big(addr))
+    }
+
     fn read_at_index(&self, index: u16) -> u16 {
         if let Some(val) = self.memory.get(index as usize) {
             return *val;

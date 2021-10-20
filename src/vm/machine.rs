@@ -123,6 +123,14 @@ impl VirtualMachine {
 
                 self.registers.set(dest, operand ^ 0xFF7F)
             }
+            OpCode::RMEM => {
+                let dest = self.memory.next();
+                let mem_addr = self.next_literal_or_register();
+
+                let mem_val = self.memory.read_at_addr(mem_addr);
+
+                self.registers.set(dest, mem_val);
+            }
             OpCode::CALL => {
                 let addr = self.next_literal_or_register();
 
