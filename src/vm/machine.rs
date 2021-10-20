@@ -89,6 +89,13 @@ impl VirtualMachine {
 
                 self.registers.set(dest, maths::add(operand1, operand2))
             }
+            OpCode::MULT => {
+                let dest = self.memory.next();
+                let operand1 = self.next_literal_or_register();
+                let operand2 = self.next_literal_or_register();
+
+                self.registers.set(dest, maths::mult(operand1, operand2))
+            }
             OpCode::AND => {
                 let dest = self.memory.next();
                 let operand1 = self.next_literal_or_register();
