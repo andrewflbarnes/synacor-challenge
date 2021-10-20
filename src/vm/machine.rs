@@ -131,6 +131,12 @@ impl VirtualMachine {
 
                 self.registers.set(dest, mem_val);
             }
+            OpCode::WMEM => {
+                let dest = self.next_literal_or_register();
+                let val = self.next_literal_or_register();
+
+                self.memory.write_at_addr(dest, val);
+            }
             OpCode::CALL => {
                 let addr = self.next_literal_or_register();
 
