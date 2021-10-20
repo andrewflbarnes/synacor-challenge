@@ -19,3 +19,12 @@ pub fn mult(operand1: u16, operand2: u16) -> u16 {
 
     utils::little_to_big(result as u16)
 }
+
+pub fn modulo(operand1: u16, operand2: u16) -> u16 {
+    let op1 = utils::little_to_big(operand1);
+    let op2 = utils::little_to_big(operand2);
+
+    let result = op1 % op2;
+
+    utils::little_to_big(result as u16)
+}
