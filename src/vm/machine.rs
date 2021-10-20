@@ -23,16 +23,15 @@ impl VirtualMachine {
         loop {
             let code = self.memory.next();
             let op = OpCode::of(code);
-            if op == OpCode::HALT {
+            if OpCode::HALT == self.exec_opcode(op) {
                 return;
             }
-
-            self.exec_opcode(op);
         }
     }
 
-    fn exec_opcode(&mut self, opcode: OpCode) {
+    fn exec_opcode(&mut self, opcode: OpCode) -> OpCode {
         match opcode {
+            OpCode::HALT => {}
             OpCode::SET => {
                 let reg = self.memory.next();
                 let val = self.next_literal_or_register();
@@ -45,7 +44,7 @@ impl VirtualMachine {
             }
             OpCode::POP => {
                 let reg = self.memory.next();
-                let val = self.stack.pop();
+                let val = self.stack.pop().expect("Empty stack");
                 self.registers.set(reg, val);
             }
             OpCode::EQ => {
@@ -145,6 +144,14 @@ impl VirtualMachine {
 
                 self.memory.set_pointer(addr)
             }
+            OpCode::RET => {
+                if let Some(addr) = self.stack.pop() {
+                    self.memory.set_pointer(addr);
+                } else {
+                    return OpCode::HALT
+                }
+
+            }
             OpCode::OUT => {
                 let ch = self.next_literal_or_register();
                 Self::console_write(ch);
@@ -152,6 +159,8 @@ impl VirtualMachine {
             OpCode::NOOP => {}
             _ => panic!("Unimplemented opcode: {:?}", opcode),
         }
+
+        return opcode;
     }
 
     fn next_literal_or_register(&mut self) -> u16 {

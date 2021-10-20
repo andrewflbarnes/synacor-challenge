@@ -11,7 +11,7 @@ impl Stack {
         self.stack.push(val);
     }
 
-    pub fn pop(&mut self) -> u16 {
-        self.stack.pop().expect("Empty stack, cannot pop!")
+    pub fn pop(&mut self) -> Option<u16> {
+        self.stack.pop()
     }
 }
