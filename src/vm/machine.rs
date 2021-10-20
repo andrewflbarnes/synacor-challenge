@@ -150,7 +150,7 @@ impl VirtualMachine {
                 if let Some(addr) = self.stack.pop() {
                     self.memory.set_pointer(addr);
                 } else {
-                    return OpCode::HALT
+                    return OpCode::HALT;
                 }
             }
             OpCode::OUT => {

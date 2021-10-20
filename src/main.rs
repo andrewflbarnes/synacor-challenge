@@ -19,7 +19,7 @@ fn main() {
 
     if args.len() < 2 {
         println!("A program file must be provided");
-        return
+        return;
     }
 
     let filename = &args[1];

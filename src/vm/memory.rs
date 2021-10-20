@@ -34,7 +34,11 @@ impl MemBank {
         if let Some(val) = self.memory.get(index as usize) {
             return *val;
         }
-        panic!("End of memory when reading at 0x{:x} (Size 0x{:x})", index, self.memory.len());
+        panic!(
+            "End of memory when reading at 0x{:x} (Size 0x{:x})",
+            index,
+            self.memory.len()
+        );
     }
 
     pub fn write_at_addr(&mut self, addr: u16, val: u16) {
@@ -43,7 +47,11 @@ impl MemBank {
 
     fn write_at_index(&mut self, index: u16, val: u16) {
         if index as usize > self.memory.len() {
-            panic!("End of memory when writing at 0x{:x} (Size 0x{:x})", index, self.memory.len());
+            panic!(
+                "End of memory when writing at 0x{:x} (Size 0x{:x})",
+                index,
+                self.memory.len()
+            );
         }
         self.memory[index as usize] = val;
     }
