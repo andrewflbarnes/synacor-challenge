@@ -2,18 +2,14 @@ pub struct Registers {
     registers: Vec<u16>,
 }
 
-use super::utils;
-
-fn check(reg: u16) {
-    if !utils::is_reg(reg) {
-        panic!("Invalid register 0x{:x}", reg)
-    }
+pub fn is_reg(reg: u16) -> bool {
+    reg > 0x7FFF && reg < 0x8008
 }
 
-fn as_index(reg: u16) -> usize {
-    check(reg);
-
-    (reg >> 8) as usize
+fn check(reg: u16) {
+    if !is_reg(reg) {
+        panic!("Invalid register 0x{:x}", reg)
+    }
 }
 
 impl Registers {
@@ -25,13 +21,11 @@ impl Registers {
 
     pub fn set(&mut self, reg: u16, val: u16) {
         check(reg);
-        let index = as_index(reg);
-        self.registers[index] = val;
+        self.registers[(reg & 0x7) as usize] = val;
     }
 
     pub fn get(&self, reg: u16) -> u16 {
         check(reg);
-        let index = as_index(reg);
-        *self.registers.get(index).unwrap()
+        *self.registers.get((reg & 0x7) as usize).unwrap()
     }
 }

@@ -3,7 +3,18 @@ name = "synacor"
 version = "0.1.0"
 authors = ["andrewflbarnes <andrewflbarnes@hotmail.co.uk>"]
 edition = "2018"
+default-run = "synvm"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "synacorlib"
+path = "src/synacor/lib.rs"
+
+[[bin]]
+name = "synvm"
+path = "src/bin/vm/main.rs"
+
+[[bin]]
+name = "syndis"
+path = "src/bin/disassembler/main.rs"
 
 [dependencies]

@@ -1,5 +1,4 @@
-mod vm;
-use vm::VirtualMachine;
+use synacorlib::vm::VirtualMachine;
 
 use std::env;
 use std::fs::File;
@@ -34,7 +33,7 @@ fn main() {
     let program: Vec<u16> = buffer
         .chunks_exact(2)
         .into_iter()
-        .map(|a| (a[0] as u16) << 8 | a[1] as u16)
+        .map(|a| (a[1] as u16) << 8 | a[0] as u16)
         .collect();
 
     vm.load(program);

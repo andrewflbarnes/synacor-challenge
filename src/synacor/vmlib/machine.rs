@@ -1,6 +1,8 @@
-use super::{maths, memory::MemBank, opcode::OpCode, registers::Registers, stack::Stack, utils};
+use super::{memory::MemBank, opcode::OpCode, registers, registers::Registers, stack::Stack};
 use std::io;
 use std::io::Read;
+
+const MODULO: u16 = 0x7FFF;
 
 pub struct VirtualMachine {
     memory: MemBank,
@@ -25,15 +27,18 @@ impl VirtualMachine {
         loop {
             let code = self.memory.next();
             let op = OpCode::of(code);
-            if OpCode::HALT == self.exec_opcode(op) {
+            
+            if !self.exec_opcode(op) {
                 return;
             }
         }
     }
 
-    fn exec_opcode(&mut self, opcode: OpCode) -> OpCode {
+    fn exec_opcode(&mut self, opcode: OpCode) -> bool {
         match opcode {
-            OpCode::HALT => {}
+            OpCode::HALT => {
+                return false;
+            }
             OpCode::SET => {
                 let reg = self.memory.next();
                 let val = self.next_literal_or_register();
@@ -55,7 +60,7 @@ impl VirtualMachine {
                 let operand2 = self.next_literal_or_register();
 
                 self.registers
-                    .set(dest, if operand1 == operand2 { 0x0100 } else { 0x0000 });
+                    .set(dest, if operand1 == operand2 { 0x0001 } else { 0x0000 });
             }
             OpCode::GT => {
                 let dest = self.memory.next();
@@ -63,7 +68,7 @@ impl VirtualMachine {
                 let operand2 = self.next_literal_or_register();
 
                 self.registers
-                    .set(dest, if operand1 > operand2 { 0x0100 } else { 0x0000 });
+                    .set(dest, if operand1 > operand2 { 0x0001 } else { 0x0000 });
             }
             OpCode::JMP => {
                 let addr = self.next_literal_or_register();
@@ -88,21 +93,21 @@ impl VirtualMachine {
                 let operand1 = self.next_literal_or_register();
                 let operand2 = self.next_literal_or_register();
 
-                self.registers.set(dest, maths::add(operand1, operand2))
+                self.registers.set(dest, (operand1 + operand2) & MODULO)
             }
             OpCode::MULT => {
                 let dest = self.memory.next();
                 let operand1 = self.next_literal_or_register();
                 let operand2 = self.next_literal_or_register();
 
-                self.registers.set(dest, maths::mult(operand1, operand2))
+                self.registers.set(dest, ((operand1 as u32 * operand2 as u32) & MODULO as u32) as u16)
             }
             OpCode::MOD => {
                 let dest = self.memory.next();
                 let operand1 = self.next_literal_or_register();
                 let operand2 = self.next_literal_or_register();
 
-                self.registers.set(dest, maths::modulo(operand1, operand2))
+                self.registers.set(dest, operand1 % operand2)
             }
             OpCode::AND => {
                 let dest = self.memory.next();
@@ -122,7 +127,7 @@ impl VirtualMachine {
                 let dest = self.memory.next();
                 let operand = self.next_literal_or_register();
 
-                self.registers.set(dest, operand ^ 0xFF7F)
+                self.registers.set(dest, operand ^ 0x7FFF)
             }
             OpCode::RMEM => {
                 let dest = self.memory.next();
@@ -150,7 +155,7 @@ impl VirtualMachine {
                 if let Some(addr) = self.stack.pop() {
                     self.memory.set_pointer(addr);
                 } else {
-                    return OpCode::HALT;
+                    return false;
                 }
             }
             OpCode::OUT => {
@@ -163,12 +168,12 @@ impl VirtualMachine {
                 let mut buf = vec![0; 1];
                 io::stdin().read_exact(&mut buf).expect("Expected input");
 
-                self.registers.set(dest, (buf[0] as u16) << 8)
+                self.registers.set(dest, buf[0] as u16)
             }
             OpCode::NOOP => {}
         }
 
-        return opcode;
+        true
     }
 
     fn next_literal_or_register(&mut self) -> u16 {
@@ -177,7 +182,7 @@ impl VirtualMachine {
     }
 
     fn literal_or_register(&self, addr_or_literal: u16) -> u16 {
-        if utils::is_reg(addr_or_literal) {
+        if registers::is_reg(addr_or_literal) {
             return self.registers.get(addr_or_literal);
         } else {
             return addr_or_literal;
@@ -185,6 +190,6 @@ impl VirtualMachine {
     }
 
     fn console_write(ch: u16) {
-        print!("{}", utils::little_to_big(ch) as u8 as char)
+        print!("{0}", ch as u8 as char)
     }
 }

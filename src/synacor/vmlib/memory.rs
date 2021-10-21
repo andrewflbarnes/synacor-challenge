@@ -1,5 +1,3 @@
-use super::utils;
-
 pub struct MemBank {
     memory: Vec<u16>,
     pointer: u16,
@@ -27,7 +25,7 @@ impl MemBank {
     }
 
     pub fn read_at_addr(&self, addr: u16) -> u16 {
-        self.read_at_index(utils::little_to_big(addr))
+        self.read_at_index(addr)
     }
 
     fn read_at_index(&self, index: u16) -> u16 {
@@ -42,7 +40,7 @@ impl MemBank {
     }
 
     pub fn write_at_addr(&mut self, addr: u16, val: u16) {
-        self.write_at_index(utils::little_to_big(addr), val)
+        self.write_at_index(addr, val)
     }
 
     fn write_at_index(&mut self, index: u16, val: u16) {
@@ -57,10 +55,10 @@ impl MemBank {
     }
 
     pub fn set_pointer(&mut self, position: u16) {
-        self.pointer = utils::little_to_big(position)
+        self.pointer = position
     }
 
     pub fn get_pointer(&self) -> u16 {
-        utils::little_to_big(self.pointer)
+        self.pointer
     }
 }
