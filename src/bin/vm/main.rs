@@ -30,13 +30,17 @@ fn main() {
 
     f.read_to_end(&mut buffer).expect("Buffer overflow");
 
-    let program: Vec<u16> = buffer
+    let mut program: Vec<u16> = buffer
         .chunks_exact(2)
         .into_iter()
         .map(|a| (a[1] as u16) << 8 | a[0] as u16)
         .collect();
 
+    // Skip the r7 = 0 check in self tests
+    program[0x209] = 8;
+
     vm.load(program);
+    vm.init_register(0x8007, 1);
 
     vm.run();
 }

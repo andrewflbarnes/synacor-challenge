@@ -23,6 +23,10 @@ impl VirtualMachine {
         self.memory.load_at(0, program)
     }
 
+    pub fn init_register(&mut self, reg: u16, val: u16) {
+        self.registers.set(reg, val)
+    }
+
     pub fn run(&mut self) {
         loop {
             let code = self.memory.next();
