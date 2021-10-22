@@ -61,7 +61,7 @@ impl Disassembler {
 
     fn reg_or_mem(&self, addr: u16) -> String {
         return if registers::is_reg(addr) {
-            format!("r{:<5} ", addr)
+            format!("r{:<5} ", addr & 0x7)
         } else {
             format!("{:#06x} ", self.as_repr(addr as usize))
         }

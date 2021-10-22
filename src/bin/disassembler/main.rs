@@ -34,7 +34,6 @@ fn main() {
         .map(|a| (a[1] as u16) << 8 | a[0] as u16)
         .collect();
 
-
     let disassembler = Disassembler::new();
 
     disassembler.disassemble(program);
