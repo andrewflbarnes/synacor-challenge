@@ -1,22 +1,23 @@
-use std::collections::HashMap;
+type Memo = [[Option<u16>; 0x10000]; 5];
 
 fn main() {
-    let mut memo: HashMap<(u16, u16), u16> = HashMap::new();
+    for r7 in 0x0..0x8000 {
+        let mut memo: Memo = [[None; 0x10000]; 5];
 
-    for r7 in 0x800..0x8000 {
-        memo.clear();
         if recur(&mut memo, 4, 1, r7) == 6 {
             println!("MATCH on {}", r7);
             return;
-        } else {
-            println!("NO MATCH on {}", r7)
+        } else if r7 % 100 == 0 {
+            println!("Tried {}...", r7)
         }
     }
 }
 
-fn recur(memo: &mut HashMap<(u16, u16), u16>, r0: u16, r1: u16, r7: u16) -> u16 {
-    if let Some(val) = memo.get(&(r0, r1)) {
-        return *val;
+fn recur(memo: &mut Memo, r0: u16, r1: u16, r7: u16) -> u16 {
+    let (r0_usize, r1_usize) = (r0 as usize, r1 as usize);
+
+    if let Some(val) = memo[r0_usize][r1_usize] {
+        return val;
     }
 
     let result = match (r0, r1) {
@@ -28,7 +29,7 @@ fn recur(memo: &mut HashMap<(u16, u16), u16>, r0: u16, r1: u16, r7: u16) -> u16 
         },
     };
 
-    memo.insert((r0, r1), result);
+    memo[r0_usize][r1_usize] = Some(result);
 
     result
 }

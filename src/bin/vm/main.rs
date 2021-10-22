@@ -39,8 +39,14 @@ fn main() {
     // Skip the r7 = 0 check in self tests
     program[0x209] = 8;
 
+    // Skip computational intensive section
+    program[0x1571] = 0x15;
+    program[0x1572] = 0x15;
+    // because we skip the computational step r0 isn't 6 so EQ writes 0 to r1 and we need to JT instead of JF
+    program[0x1577] = 0x7;
+
     vm.load(program);
-    vm.init_register(0x8007, 1);
+    vm.init_register(0x8007, 0x6486);
 
     vm.run();
 }
