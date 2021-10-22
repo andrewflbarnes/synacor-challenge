@@ -1,5 +1,5 @@
-use crate::vmlib::OpCode;
 use crate::vmlib::registers;
+use crate::vmlib::OpCode;
 pub enum Repr {
     Word,
     Byte,
@@ -20,9 +20,7 @@ pub struct Disassembler {
 
 impl Disassembler {
     pub fn of(repr: Repr) -> Self {
-        Disassembler{
-            repr,
-        }
+        Disassembler { repr }
     }
 
     pub fn new() -> Self {
@@ -35,7 +33,7 @@ impl Disassembler {
 
     pub fn disassemble(&self, program: Vec<u16>) {
         let mut pointer = 0;
-    
+
         while pointer < program.len() {
             let raw_opcode = program[pointer];
             print!("{:#06x}: {:#06x} ", self.as_repr(pointer), raw_opcode);
@@ -44,7 +42,7 @@ impl Disassembler {
 
             if !OpCode::valid(raw_opcode) {
                 println!("INVALID");
-                continue
+                continue;
             }
 
             let opcode = OpCode::of(raw_opcode);
@@ -64,6 +62,6 @@ impl Disassembler {
             format!("r{:<5} ", addr & 0x7)
         } else {
             format!("{:#06x} ", self.as_repr(addr as usize))
-        }
+        };
     }
 }

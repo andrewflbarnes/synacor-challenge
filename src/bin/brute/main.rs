@@ -24,9 +24,9 @@ fn recur(memo: &mut Memo, r0: u16, r1: u16, r7: u16) -> u16 {
         (0, r1) => r1 + 1,
         (r0, 0) => recur(memo, r0 - 1, r7, r7),
         (r0, r1) => {
-            let partial = recur(memo, r0, r1-1, r7);
-            recur(memo, r0 - 1 , partial, r7)
-        },
+            let partial = recur(memo, r0, r1 - 1, r7);
+            recur(memo, r0 - 1, partial, r7)
+        }
     };
 
     memo[r0_usize][r1_usize] = Some(result);

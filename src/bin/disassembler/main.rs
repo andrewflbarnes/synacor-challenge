@@ -37,5 +37,4 @@ fn main() {
     let disassembler = Disassembler::new();
 
     disassembler.disassemble(program);
-    
 }

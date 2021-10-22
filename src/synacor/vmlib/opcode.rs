@@ -71,7 +71,7 @@ impl OpCode {
             OpCode::JF => 2,
             OpCode::ADD => 3,
             OpCode::MULT => 3,
-            OpCode::MOD =>3,
+            OpCode::MOD => 3,
             OpCode::AND => 3,
             OpCode::OR => 3,
             OpCode::NOT => 2,
@@ -81,7 +81,7 @@ impl OpCode {
             OpCode::RET => 0,
             OpCode::OUT => 1,
             OpCode::IN => 1,
-            OpCode::NOOP => 0
+            OpCode::NOOP => 0,
         }
     }
 }

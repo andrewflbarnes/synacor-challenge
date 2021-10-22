@@ -31,7 +31,7 @@ impl VirtualMachine {
         loop {
             let code = self.memory.next();
             let op = OpCode::of(code);
-            
+
             if !self.exec_opcode(op) {
                 return;
             }
@@ -104,7 +104,10 @@ impl VirtualMachine {
                 let operand1 = self.next_literal_or_register();
                 let operand2 = self.next_literal_or_register();
 
-                self.registers.set(dest, ((operand1 as u32 * operand2 as u32) & MODULO as u32) as u16)
+                self.registers.set(
+                    dest,
+                    ((operand1 as u32 * operand2 as u32) & MODULO as u32) as u16,
+                )
             }
             OpCode::MOD => {
                 let dest = self.memory.next();
