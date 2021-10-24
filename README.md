@@ -14,6 +14,9 @@ cargo r --bin syndis binaries/challenge.bin > diassemble.asm
 
 # Brute force the teleporter solution - make sure you use --release!
 cargo r --bin syntele --release
+
+# Brute force the orb solution
+cargo r --bin synorb
 ```
 
 ## The challenge
@@ -91,3 +94,43 @@ just consists of using a 2D array over a HashMap for faster read/write access.
 
 TODO! I've mapped this out and have an idea for how to approach it. I think the approach I'm looking for is a breadth first search, let's
 see how it goes!
+
+Going to use a deque so we can continually add items to the back and pop from the front. The items will contain
+- the current tile we are on (numeric)
+- the route we have taken to get there
+- the current value of the orb
+
+Each time we pop an item we can
+- check if the value is 30 and we are on the vault tile, if so stop and print the route
+- otherwise
+  - for each numeric tile we can reach via a different symbol create a copy of the item
+  - add the symbol and number to the route
+  - update the value based on the symbol and number
+  - push the new item onto the back of the deque
+
+For example we will start with a single item on the first (22) tile which will look something like
+```
+{
+    value: 22,
+    tile: 0, // a relative ID into an array or similar
+    route: ""
+}
+```
+
+Eash tile item will look something like
+```
+{
+    op_string: "+ 4 ",
+    op: |x| x + 4,
+    neighbours: [1, 2, 4]
+}
+```
+
+The first tile has 4 neighbours
+- `+ 4` (up)
+- `+ 4` (diagonal)
+- `- 4`
+- `- 9`
+
+After processing the first tile there will be 4 items on the deque with values 26, 26, 18 and 31 based on the respective values.
+The process will continue until we (hopefully) have a result!

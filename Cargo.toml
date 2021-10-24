@@ -14,6 +14,10 @@ name = "syntele"
 path = "src/bin/teleporter/main.rs"
 
 [[bin]]
+name = "synorb"
+path = "src/bin/orb/main.rs"
+
+[[bin]]
 name = "synvm"
 path = "src/bin/vm/main.rs"
 
