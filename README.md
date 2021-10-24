@@ -4,6 +4,13 @@ The site and challenge can be found [here](https://challenge.synacor.com/).
 
 I've tried to keep this spoiler free-ish. To that end I haven't included explicit solutions for example the program input.
 
+This was a great little challenge which I completed over the course of around a week - definitely recommend it and trying
+your best to complete independently!
+
+There was one section I struggled with which I did end up with me resorting to googling. Fortunately this ended up with me
+realising I had a silent bug preventing some standard (but important!) text from being emitted so it didn't spoil any of
+the actual challenge for me - see the [coins](#the-coins) section.
+
 ## Commands
 ```bash
 # Run the program
@@ -60,7 +67,7 @@ seen online is brute forcing the 120 permutations but this would have taken me l
 
 ## The teleporter
 
-This was a toughie!
+This was a toughie and by far the challenge I found most interesting.
 
 I think I had created the disassembler prior to this point while trying to diagnose the issue I mentioned in the coins section.
 While it wasn't fruitful there it ended up being necessary here.
@@ -91,9 +98,6 @@ Some optimisations were made to the caching after I went online for a sneaky loo
 just consists of using a 2D array over a HashMap for faster read/write access.
 
 ## The orb
-
-TODO! I've mapped this out and have an idea for how to approach it. I think the approach I'm looking for is a breadth first search, let's
-see how it goes!
 
 Going to use a deque so we can continually add items to the back and pop from the front. The items will contain
 - the current tile we are on (numeric)
@@ -126,6 +130,9 @@ Eash tile item will look something like
 }
 ```
 
+The actual data structures used in the implementation for [orb](./src/bin/orb/main.rs) ended up differring slightly but you get the
+idea.
+
 The first tile has 4 neighbours
 - `+ 4` (up)
 - `+ 4` (diagonal)
@@ -134,3 +141,22 @@ The first tile has 4 neighbours
 
 After processing the first tile there will be 4 items on the deque with values 26, 26, 18 and 31 based on the respective values.
 The process will continue until we (hopefully) have a result!
+
+It works! The program started throwing out solution routes which got longer and longer.
+
+I ended up making some optimisations
+- doing a hacky check to see if a underflow would occur and ignoring the path if so
+- tracking the total number of steps so we could
+  - track this when we hit the first solution
+  - not follow any paths which go above the number of steps in the first solution
+- the above meant by it's nature the deque would exhaust relatively quickly after the first solution - we can check if the deque is empty and stop processing
+
+This meant the program returned 5 solutions which all checked out.
+
+I put in the first solution and... no dice...
+
+After a bit of diagnosis it turns out going back through the starting room causes the orb to disappear. Made another change to remove these links/edges and this conveniently left us with 1 result. To be fair I could have visually checked this as only 5 were returned initially.
+
+Put in the solution, grab the last code and we're done!
+
+![Synacor challenge complete](./img/complete.png)
