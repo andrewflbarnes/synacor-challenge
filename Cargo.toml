@@ -10,8 +10,8 @@ name = "synacorlib"
 path = "src/synacor/lib.rs"
 
 [[bin]]
-name = "synbrute"
-path = "src/bin/brute/main.rs"
+name = "syntele"
+path = "src/bin/teleporter/main.rs"
 
 [[bin]]
 name = "synvm"

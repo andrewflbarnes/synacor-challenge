@@ -13,7 +13,7 @@ cargo r binaries/challenge.bin
 cargo r --bin syndis binaries/challenge.bin > diassemble.asm
 
 # Brute force the teleporter solution - make sure you use --release!
-cargo r --bin synbrute --release
+cargo r --bin syntele --release
 ```
 
 ## The challenge
