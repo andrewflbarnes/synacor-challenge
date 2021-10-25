@@ -1,4 +1,5 @@
 use std::collections::VecDeque;
+use std::fmt;
 
 struct Path {
     location: usize,
@@ -7,82 +8,134 @@ struct Path {
     route: String,
 }
 
+#[derive(Eq, PartialEq)]
+enum Op {
+    Add,
+    Mul,
+    Sub,
+}
+
+impl Op {
+    fn apply(&self, operand1: u64, operand2: u64) -> u64 {
+        match self {
+            Op::Add => operand1 + operand2,
+            Op::Sub => operand1 - operand2,
+            Op::Mul => operand1 * operand2,
+        }
+    }
+}
+
+impl fmt::Display for Op {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let symbol = match self {
+            Op::Add => "+",
+            Op::Sub => "-",
+            Op::Mul => "*",
+        };
+        write!(f, "{}", symbol)
+    }
+}
+
+struct Tile {
+    value: u64,
+    neighbours: Vec<Neighbour>,
+}
+
+impl Tile {
+    fn new(value: u64, neighbours: Vec<(usize, Op)>) -> Self {
+        Tile {
+            value,
+            neighbours: neighbours
+                .into_iter()
+                .map(|(index, op)| Neighbour { index, op })
+                .collect(),
+        }
+    }
+}
+
+struct Neighbour {
+    index: usize,
+    op: Op,
+}
+
 fn main() {
     // reference locations are row (from top) then column (from left) both 1 indexed
-    let grid: [Vec<(usize, String, fn(u64) -> u64)>; 8] = [
+    let grid: [Tile; 8] = [
         // (1,2) 8
-        vec![
-            (1, " - 1 ".into(), |x| x - 1),
-            (2, " * 4 ".into(), |x| x * 4),
-            (3, " - 11 ".into(), |x| x - 11),
-            (3, " * 11 ".into(), |x| x * 11),
-            (4, " * 4 ".into(), |x| x * 4),
-        ],
+        Tile::new(
+            8,
+            vec![
+                (1, Op::Sub),
+                (2, Op::Mul),
+                (3, Op::Sub),
+                (3, Op::Mul),
+                (4, Op::Mul),
+            ],
+        ),
         // (1,4) 1 - vault/finish
-        vec![
-            (0, " - 8 ".into(), |x| x - 8),
-            (3, " - 11 ".into(), |x| x - 11),
-            (3, " * 11 ".into(), |x| x * 11),
-            (5, " * 18 ".into(), |x| x * 18),
-        ],
+        Tile::new(
+            1,
+            vec![(0, Op::Sub), (3, Op::Sub), (3, Op::Mul), (5, Op::Mul)],
+        ),
         // (2,1) 4
-        vec![
-            (0, " * 8 ".into(), |x| x * 8),
-            (3, " * 11 ".into(), |x| x * 11),
-            (4, " * 4 ".into(), |x| x * 4),
-            (4, " + 4 ".into(), |x| x + 4),
-        ],
+        Tile::new(
+            4,
+            vec![(0, Op::Mul), (3, Op::Mul), (4, Op::Mul), (4, Op::Add)],
+        ),
         // (2,3) 11
-        vec![
-            (0, " - 8 ".into(), |x| x - 8),
-            (0, " * 8 ".into(), |x| x * 8),
-            (1, " - 1 ".into(), |x| x - 1),
-            (1, " * 1 ".into(), |x| x * 1),
-            (2, " * 4 ".into(), |x| x * 4),
-            (4, " * 4 ".into(), |x| x * 4),
-            (4, " - 4 ".into(), |x| x - 4),
-            (5, " * 18 ".into(), |x| x * 18),
-            (5, " - 18 ".into(), |x| x - 18),
-            (7, " - 9 ".into(), |x| x - 9),
-        ],
+        Tile::new(
+            11,
+            vec![
+                (0, Op::Sub),
+                (0, Op::Mul),
+                (1, Op::Sub),
+                (1, Op::Mul),
+                (2, Op::Mul),
+                (4, Op::Sub),
+                (4, Op::Mul),
+                (5, Op::Sub),
+                (5, Op::Mul),
+                (7, Op::Sub),
+            ],
+        ),
         // (3,2) 4
-        vec![
-            (2, " + 4 ".into(), |x| x + 4),
-            (2, " * 4 ".into(), |x| x * 4),
-            (3, " - 11 ".into(), |x| x - 11),
-            (3, " * 11 ".into(), |x| x * 11),
-            (5, " - 18 ".into(), |x| x - 18),
-            (7, " - 9 ".into(), |x| x - 9),
-        ],
+        Tile::new(
+            4,
+            vec![
+                (2, Op::Add),
+                (2, Op::Mul),
+                (3, Op::Sub),
+                (3, Op::Mul),
+                (5, Op::Sub),
+                (7, Op::Sub),
+            ],
+        ),
         // (3,4) 18
-        vec![
-            (1, " * 1 ".into(), |x| x * 1),
-            (3, " - 11 ".into(), |x| x - 11),
-            (3, " * 11 ".into(), |x| x * 11),
-            (4, " - 4 ".into(), |x| x - 4),
-            (7, " - 9 ".into(), |x| x - 9),
-            (7, " * 9 ".into(), |x| x * 9),
-        ],
+        Tile::new(
+            18,
+            vec![
+                (1, Op::Mul),
+                (3, Op::Sub),
+                (3, Op::Mul),
+                (4, Op::Sub),
+                (7, Op::Sub),
+                (7, Op::Mul),
+            ],
+        ),
         // (4,1) 22 - orb/start
-        vec![
-            (2, " + 4 ".into(), |x| x + 4),
-            (4, " + 4 ".into(), |x| x + 4),
-            (4, " - 4 ".into(), |x| x - 4),
-            (7, " - 9 ".into(), |x| x - 9),
-        ],
+        Tile::new(
+            22,
+            vec![(2, Op::Add), (4, Op::Add), (4, Op::Sub), (7, Op::Sub)],
+        ),
         // (4,3) 9
-        vec![
-            (4, " - 4 ".into(), |x| x - 4),
-            (5, " - 18 ".into(), |x| x - 18),
-            (5, " * 18 ".into(), |x| x * 18),
-        ],
+        Tile::new(9, vec![(4, Op::Sub), (5, Op::Sub), (5, Op::Mul)]),
     ];
 
     let start = Path {
         location: 6,
         steps: 0,
         val: 22,
-        route: "".into(),
+        route: String::from("22"),
     };
 
     let mut paths = VecDeque::new();
@@ -104,25 +157,36 @@ fn main() {
             continue;
         }
 
-        for neighbour in &grid[location] {
+        let tile = &grid[location];
+
+        for neighbour in &tile.neighbours {
+            let Neighbour {
+                op,
+                index: neighbour_index,
+            } = neighbour;
+            let Tile {
+                value: neighbour_val,
+                ..
+            } = grid[*neighbour_index];
+            let Path { val: path_val, .. } = path;
+
             // If underflow would occur ignore this path
-            let negcheck = neighbour.2(100);
-            if negcheck < 100 && (100 - negcheck) >= path.val {
+            if *op == Op::Sub && neighbour_val >= path_val {
                 continue;
             }
 
             let next: Path = Path {
-                location: neighbour.0,
+                location: *neighbour_index,
                 steps: path.steps + 1,
-                route: format!("{}{}", path.route, neighbour.1),
-                val: neighbour.2(path.val),
+                route: format!("{} {} {}", path.route, op, neighbour_val),
+                val: op.apply(path_val, neighbour_val),
             };
 
             // if we got to the vault with a value of 30, print the
             if next.location == 1 && next.val == 30 {
                 max_steps = next.steps;
                 println!(
-                    "Reached vault with orb at value {} in {} steps:{}",
+                    "Reached vault with orb at value {} in {} steps: {}",
                     next.val, max_steps, next.route
                 );
                 continue;
