@@ -1,141 +1,21 @@
 use std::collections::VecDeque;
-use std::fmt;
-
-struct Path {
-    location: usize,
-    steps: u8,
-    val: u64,
-    route: String,
-}
-
-#[derive(Eq, PartialEq)]
-enum Op {
-    Add,
-    Mul,
-    Sub,
-}
-
-impl Op {
-    fn apply(&self, operand1: u64, operand2: u64) -> u64 {
-        match self {
-            Op::Add => operand1 + operand2,
-            Op::Sub => operand1 - operand2,
-            Op::Mul => operand1 * operand2,
-        }
-    }
-}
-
-impl fmt::Display for Op {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let symbol = match self {
-            Op::Add => "+",
-            Op::Sub => "-",
-            Op::Mul => "*",
-        };
-        write!(f, "{}", symbol)
-    }
-}
-
-struct Tile {
-    value: u64,
-    neighbours: Vec<Neighbour>,
-}
-
-impl Tile {
-    fn new(value: u64, neighbours: Vec<(usize, Op)>) -> Self {
-        Tile {
-            value,
-            neighbours: neighbours
-                .into_iter()
-                .map(|(index, op)| Neighbour { index, op })
-                .collect(),
-        }
-    }
-}
-
-struct Neighbour {
-    index: usize,
-    op: Op,
-}
+mod structs;
+use structs::{Op, Path, Tile};
+mod grid;
+use grid::GRID;
 
 fn main() {
-    // reference locations are row (from top) then column (from left) both 1 indexed
-    let grid: [Tile; 8] = [
-        // (1,2) 8
-        Tile::new(
-            8,
-            vec![
-                (1, Op::Sub),
-                (2, Op::Mul),
-                (3, Op::Sub),
-                (3, Op::Mul),
-                (4, Op::Mul),
-            ],
-        ),
-        // (1,4) 1 - vault/finish
-        Tile::new(
-            1,
-            vec![(0, Op::Sub), (3, Op::Sub), (3, Op::Mul), (5, Op::Mul)],
-        ),
-        // (2,1) 4
-        Tile::new(
-            4,
-            vec![(0, Op::Mul), (3, Op::Mul), (4, Op::Mul), (4, Op::Add)],
-        ),
-        // (2,3) 11
-        Tile::new(
-            11,
-            vec![
-                (0, Op::Sub),
-                (0, Op::Mul),
-                (1, Op::Sub),
-                (1, Op::Mul),
-                (2, Op::Mul),
-                (4, Op::Sub),
-                (4, Op::Mul),
-                (5, Op::Sub),
-                (5, Op::Mul),
-                (7, Op::Sub),
-            ],
-        ),
-        // (3,2) 4
-        Tile::new(
-            4,
-            vec![
-                (2, Op::Add),
-                (2, Op::Mul),
-                (3, Op::Sub),
-                (3, Op::Mul),
-                (5, Op::Sub),
-                (7, Op::Sub),
-            ],
-        ),
-        // (3,4) 18
-        Tile::new(
-            18,
-            vec![
-                (1, Op::Mul),
-                (3, Op::Sub),
-                (3, Op::Mul),
-                (4, Op::Sub),
-                (7, Op::Sub),
-                (7, Op::Mul),
-            ],
-        ),
-        // (4,1) 22 - orb/start
-        Tile::new(
-            22,
-            vec![(2, Op::Add), (4, Op::Add), (4, Op::Sub), (7, Op::Sub)],
-        ),
-        // (4,3) 9
-        Tile::new(9, vec![(4, Op::Sub), (5, Op::Sub), (5, Op::Mul)]),
-    ];
+    let start_location = 6;
+    let finish_location = 1;
+    let finish_value = 30;
+
+    let Tile { value, .. } = &GRID[start_location];
 
     let start = Path {
-        location: 6,
+        location: start_location,
         steps: 0,
-        val: 22,
-        route: String::from("22"),
+        val: *value,
+        route: value.to_string(),
     };
 
     let mut paths = VecDeque::new();
@@ -157,17 +37,14 @@ fn main() {
             continue;
         }
 
-        let tile = &grid[location];
+        let tile = &GRID[location];
 
-        for neighbour in &tile.neighbours {
-            let Neighbour {
-                op,
-                index: neighbour_index,
-            } = neighbour;
+        for neighbour in tile.neighbours {
+            let (neighbour_index, op) = neighbour;
             let Tile {
                 value: neighbour_val,
                 ..
-            } = grid[*neighbour_index];
+            } = GRID[*neighbour_index];
             let Path { val: path_val, .. } = path;
 
             // If underflow would occur ignore this path
@@ -183,7 +60,7 @@ fn main() {
             };
 
             // if we got to the vault with a value of 30, print the
-            if next.location == 1 && next.val == 30 {
+            if next.location == finish_location && next.val == finish_value {
                 max_steps = next.steps;
                 println!(
                     "Reached vault with orb at value {} in {} steps: {}",
