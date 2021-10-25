@@ -40,7 +40,7 @@ I won't cover the exact solution or some of the easier codes but this readme doe
 I solved some of the more interesting puzzles.
 
 Building the initial VM was relatively simple with my main problem managing the little endianess. Intially I preserved this
-throughout the execution but later I refactored to just conver the program to big endian when reading it into memory - much easier!
+throughout the execution but later I refactored to just convert the program to big endian when reading it into memory - much easier!
 
 ## The harder codes (MINOR SPOILERS!)
 
@@ -99,59 +99,50 @@ just consists of using a 2D array over a HashMap for faster read/write access.
 
 ## The orb
 
-Going to use a deque so we can continually add items to the back and pop from the front. The items will contain
-- the current tile we are on (numeric)
-- the route we have taken to get there
-- the current value of the orb
+This was fairly straightforward but took me a bit of time. I went back and cleaned things up (a couple of times!)
+at which point I stumbled back onto rust lifetimes... Managed to store the grid as a global const though!
 
-Each time we pop an item we can
-- check if the value is 30 and we are on the vault tile, if so stop and print the route
+For this challenge you pick up an orb with a starting value of 22. The goal is to reach the vault door a few rooms
+away with the orb vallue at 30. The orbs value changes based on the symbols in the rooms, either a number or
+operation.
+
+For example if you are in the starting room you can walk north into a room with the `+` operator and north again
+into a room with the `4` number. This causes the orb value to become `30` - `22` (starting value) `+ 4`.
+
+I ended up using a deque so we could continually add items to the back and pop from the front. Each item would
+represent a "path so far" which had been taken. The item itself tracks
+- the current room we are in
+- the route we have taken to get there so far as a string
+- the current value of the orb
+- the number of rooms we have been in
+
+For each item we pop we
+- check if the value is 30 and we are in the vault room, if so
+  - check how many rooms we have been in and set this as the upper limit
+  - any future items which go beyond this limit we will discard
 - otherwise
-  - for each numeric tile we can reach via a different symbol create a copy of the item
+  - for each numeric room we can reach via a different symbol room create a copy of the item
   - add the symbol and number to the route
   - update the value based on the symbol and number
   - push the new item onto the back of the deque
 
-For example we will start with a single item on the first (22) tile which will look something like
-```
-{
-    value: 22,
-    tile: 0, // a relative ID into an array or similar
-    route: ""
-}
-```
+For example we will start with a single item with
+- a value of 22
+- pointing to the starting room
 
-Eash tile item will look something like
-```
-{
-    op_string: "+ 4 ",
-    op: |x| x + 4,
-    neighbours: [1, 2, 4]
-}
-```
+The first room has 4 neighbours
+- `+ 4` (north north)
+- `+ 4` (north east)
+- `- 4` (east north)
+- `- 9` (east east)
 
-The actual data structures used in the implementation for [orb](./src/bin/orb/main.rs) ended up differring slightly but you get the
-idea.
+After processing the first room there will be 4 items on the deque with values 26, 26, 18 and 31 based on the respective values.
 
-The first tile has 4 neighbours
-- `+ 4` (up)
-- `+ 4` (diagonal)
-- `- 4`
-- `- 9`
+The process is complete when there are no more items. Setting the upper limit when we find the first solution
+will cause the stack to empty quickly afterwards. If we didn't do this we would just keep traversing rooms
+and printing longer and longer solutions which we don't care about.
 
-After processing the first tile there will be 4 items on the deque with values 26, 26, 18 and 31 based on the respective values.
-The process will continue until we (hopefully) have a result!
-
-It works! The program started throwing out solution routes which got longer and longer.
-
-I ended up making some optimisations
-- doing a hacky check to see if a underflow would occur and ignoring the path if so
-- tracking the total number of steps so we could
-  - track this when we hit the first solution
-  - not follow any paths which go above the number of steps in the first solution
-- the above meant by it's nature the deque would exhaust relatively quickly after the first solution - we can check if the deque is empty and stop processing
-
-This meant the program returned 5 solutions which all checked out.
+It works! The pprogram returns 5 solutions which all mathematically sound.
 
 I put in the first solution and... no dice...
 
